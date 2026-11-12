@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Make Thousands list</title>
+<style>body{font-family:system-ui,sans-serif;max-width:520px;margin:40px auto;padding:0 18px;line-height:1.5}
+button,label{display:inline-block;padding:12px 20px;border-radius:999px;background:#ff4f8b;color:#fff;border:0;font-size:1rem;cursor:pointer;margin:6px 0}
+input{display:none}#out{margin-top:14px;font-weight:600}</style></head>
+<body>
+<h2>Make the Thousands list</h2>
+<p>1. Put all your images in the <b>Thousands</b> folder (any names).<br>
+2. Click the button and choose that <b>Thousands</b> folder.<br>
+3. list.js downloads by itself. Move it into the Thousands folder (replace the old one).</p>
+<label>Choose the Thousands folder<input type="file" id="f" webkitdirectory multiple></label>
+<div id="out"></div><button id="dl" style="display:none">Download list.js</button>
+<script>
+let text = "";
+document.getElementById('f').onchange = e => {
+  const names = [...e.target.files].filter(f => /^image\//.test(f.type) || /\.(jpe?g|jfif|png|gif|webp|avif|bmp|svg|ico|tiff?)$/i.test(f.name)).map(f => f.name);
+  text = "window.THOUSANDS = " + JSON.stringify(names) + ";\n";
+  document.getElementById('out').textContent = names.length + " images found.";
+  document.getElementById('dl').style.display = names.length ? "inline-block" : "none";
+  if (names.length) document.getElementById('dl').click();   // downloads list.js right away
+};
+document.getElementById('dl').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type: "text/javascript"}));
+  a.download = "list.js"; a.click();
+};
+</script></body></html>

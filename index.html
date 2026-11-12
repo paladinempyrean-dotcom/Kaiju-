@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>For my queen</title>
+<style>
+:root{--pink:#ff4f8b;--soft:#ffd6e5;--ink:#1a0610}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000;color:#fff;font-family:Georgia,'Times New Roman',serif;overflow:hidden}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:env(safe-area-inset-top) 20px env(safe-area-inset-bottom);text-align:center}
+.screen.on{display:flex;animation:fade 1s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+button{font-family:inherit;font-size:1.05rem;border:0;border-radius:999px;padding:13px 28px;background:var(--pink);color:#fff;cursor:pointer;box-shadow:0 6px 22px rgba(255,79,139,.45)}
+button.ghost{background:rgba(255,255,255,.12);box-shadow:none}
+button:active{transform:scale(.96)}
+
+/* 1 intro */
+#intro{background:#000;justify-content:flex-end;padding-bottom:calc(env(safe-area-inset-bottom) + 44px)}
+.star{position:fixed;width:var(--s);height:var(--s);background:#fff;opacity:0;
+ clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+ filter:drop-shadow(0 0 6px #fff);animation:starIn .9s ease forwards,drift 9s linear forwards,twinkle 2s ease-in-out infinite}
+@keyframes starIn{to{opacity:1}}
+@keyframes drift{from{translate:0 0;rotate:0deg}to{translate:var(--dx) var(--dy);rotate:var(--r)}}
+@keyframes twinkle{50%{scale:.7}}
+#msg{font-size:1.15rem;line-height:1.5;max-width:300px;margin-bottom:22px;opacity:0;transition:opacity 1.5s}
+#msg.on{opacity:1}
+#heart{width:92px;height:84px;position:relative}
+#pct{margin-top:8px;font-size:1rem;letter-spacing:.08em;color:var(--soft)}
+#cont{margin-top:18px;display:none}
+#cont.on{display:inline-block;animation:fade .8s both}
+
+/* 2 main */
+#main{background:radial-gradient(circle at 50% 30%,#3a0b21,#0c0208 70%);gap:22px}
+.holder{width:min(78vw,320px);aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:6rem}
+.holder img{width:100%;height:100%;object-fit:contain;cursor:pointer;animation:bob 3s ease-in-out infinite;filter:drop-shadow(0 12px 22px rgba(255,79,139,.35))}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.row{display:flex;gap:12px;align-items:center}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 40px);translate:-50% 0;background:#fff;color:var(--ink);padding:12px 20px;border-radius:14px;opacity:0;pointer-events:none;transition:opacity .3s;max-width:86vw}
+#toast.on{opacity:1}
+
+/* 3 maxx */
+#maxx{background:#000;overflow:hidden}
+#orb{width:130px;height:130px;border-radius:50%;border:10px solid var(--pink);box-shadow:0 0 40px var(--pink),inset 0 0 30px var(--pink);animation:orb 6s ease-in-out infinite}
+@keyframes orb{0%,100%{transform:scale(.45)}50%{transform:scale(7);opacity:.8}}
+.bit{position:fixed;left:50%;top:50%;width:84px;height:84px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;z-index:5;
+ animation:burst 1.4s cubic-bezier(.15,.8,.3,1) forwards}
+.bit.ph{font-size:.8rem;border-radius:14px;background:#2a0f1c;border:2px dashed var(--pink);color:var(--soft)}
+.bit img{width:100%;height:100%;object-fit:contain;border-radius:12px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+@keyframes burst{from{transform:translate(-50%,-50%) scale(.2);opacity:0}to{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) rotate(var(--r)) scale(1);opacity:1}}
+#back{position:fixed;top:calc(env(safe-area-inset-top) + 14px);left:14px;z-index:9;padding:8px 16px;font-size:.9rem}
+
+/* 4 stickers */
+#sticker{background:radial-gradient(circle at 50% 30%,#3a0b21,#0c0208 70%)}
+#sticker .holder{font-size:5rem}
+#sticker .holder img{animation:none;cursor:default}
+#stext{font-size:1.4rem;margin:14px 0 22px}
+#sbtns{position:relative;display:flex;gap:16px;justify-content:center}
+#no{transition:all .25s}
+
+/* 5 finale */
+#finale{background:#000;overflow:hidden}
+#fheart{width:130px;height:118px;cursor:pointer;z-index:3;animation:beat 1.4s ease-in-out infinite;transition:opacity 2s}
+#fheart.glow{animation:glow 3s ease-in forwards}
+#fheart.gone{opacity:0}
+@keyframes beat{50%{scale:1.1}}
+@keyframes glow{to{filter:drop-shadow(0 0 80px #ff4f8b) drop-shadow(0 0 160px #ff9ac0);scale:1.5}}
+#light{position:fixed;left:50%;top:50%;width:40px;height:40px;border-radius:50%;translate:-50% -50%;scale:0;background:radial-gradient(circle,#fff 0,#ffd6e5 45%,#ff8ab5 100%);z-index:2;transition:scale 3.5s ease-in}
+#light.on{scale:90}
+#anniv{position:fixed;inset:0;z-index:4;display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;color:var(--ink);text-align:center}
+#anniv.on{display:flex;animation:fade 2s both}
+#anniv h1{font-size:2rem;font-weight:400;font-style:italic;margin-bottom:18px;color:#b0215a}
+#anniv p{font-size:1.1rem;line-height:1.7;max-width:320px}
+#hint{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 40px);color:var(--soft);z-index:3;font-size:.95rem}
+@media (prefers-reduced-motion:reduce){.holder img{animation:none}}
+
+/* 6 destination + player */
+#nextDest{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 28px);left:50%;translate:-50% 0}
+#dest{background:radial-gradient(circle at 50% 20%,#3a0b21,#0c0208 70%);gap:14px}
+#dload{width:80%;max-width:300px}
+.bar{height:10px;border-radius:99px;background:rgba(255,255,255,.15);overflow:hidden;margin:14px 0 8px}
+.bar i{display:block;height:100%;width:0;background:var(--pink)}
+#player{display:none;width:100%;max-width:340px;flex-direction:column;align-items:center;gap:14px}
+#player.on{display:flex;animation:fade 1s both}
+#ptitle{font-size:1.3rem}
+#pickbox{width:100%;background:rgba(255,255,255,.1);border:1px dashed var(--pink);border-radius:16px;padding:14px;display:none;flex-direction:column;gap:10px}
+#pickbox.on{display:flex}
+#pickname{word-break:break-all;font-size:.95rem;color:var(--soft)}
+.pbox{width:100%;background:rgba(255,255,255,.08);border-radius:20px;padding:18px}
+#tname{font-size:1rem;margin-bottom:12px;word-break:break-all}
+#seek{width:100%;accent-color:var(--pink)}
+#times{display:flex;justify-content:space-between;font-size:.8rem;color:var(--soft);margin-top:4px}
+.ctl{display:flex;justify-content:center;gap:14px;margin-top:14px}
+.ctl button{width:54px;height:54px;padding:0;font-size:1.3rem}
+#after{font-size:1.15rem;font-style:italic;color:var(--soft);min-height:1.6em}
+.fbtn{position:relative;display:inline-block;overflow:hidden;font-size:1.05rem;border-radius:999px;padding:13px 28px;background:var(--pink);color:#fff;cursor:pointer;box-shadow:0 6px 22px rgba(255,79,139,.45)}
+.fbtn input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
+
+/* 7 gallery */
+#gallery{background:radial-gradient(circle at 30% 50%,#3a0b21,#0c0208 70%);padding:0;overflow:hidden}
+#sphereWrap{position:absolute;left:0;top:0;width:58%;height:100%;perspective:700px;display:flex;align-items:center;justify-content:center}
+#sphere{position:relative;width:0;height:0;transform-style:preserve-3d;animation:spin 90s linear infinite}
+@keyframes spin{to{transform:rotateY(360deg)}}
+.gb{position:absolute;left:0;top:0;border:1px solid rgba(255,79,139,.75);border-radius:5px;background:rgba(255,255,255,.07) center/cover no-repeat;backface-visibility:hidden;cursor:pointer}
+#fly{position:absolute;right:0;top:0;width:46%;height:100%;pointer-events:none}
+.fb{position:absolute;border:2px solid var(--pink);border-radius:10px;background:rgba(255,255,255,.08) center/cover no-repeat;cursor:pointer;pointer-events:auto;opacity:0;animation:out 5s ease-out forwards}
+@keyframes out{0%{opacity:0;transform:translate(0,0) scale(.2)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.5)}}
+.cf{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 150px);width:70vw;text-align:center;color:var(--soft);font-size:.7rem;line-height:1.3;pointer-events:none;z-index:6;opacity:0;transform-origin:50% 100%;animation:cfloat 7s ease-out forwards}
+@keyframes cfloat{0%{opacity:0;transform:translate(-50%,0) scale(.5)}8%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translate(-50%,var(--rise)) scale(2.4)}}
+#goGallery{display:none}
+#goGallery.on{display:inline-block;animation:fade .8s both}
+/* gallery bottom music bar */
+#gbar{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 10px);translate:-50% 0;width:92%;max-width:340px;z-index:7;text-align:center}
+#gwait{font-size:.85rem;color:var(--soft);font-style:italic;background:rgba(0,0,0,.45);border-radius:14px;padding:10px 14px}
+#gplayer{display:none;flex-direction:column;gap:4px;background:rgba(20,6,12,.7);border:1px solid rgba(255,79,139,.5);border-radius:16px;padding:8px 12px;animation:fade 1s both}
+#gname{font-size:.8rem;word-break:break-all}
+#gseek{width:100%;accent-color:var(--pink);height:18px}
+#gtimes{display:flex;justify-content:space-between;font-size:.7rem;color:var(--soft)}
+.gctl{display:flex;justify-content:center;gap:10px}
+.gctl button{width:40px;height:40px;padding:0;font-size:1rem}
+</style>
+</head>
+<body>
+
+<!-- 1. INTRO -->
+<section id="intro" class="screen on">
+  <p id="msg">See this 11 stars? You're more beautiful than them ✨</p>
+  <svg id="heart" viewBox="0 0 32 29">
+    <defs><clipPath id="hc"><rect id="hr" x="0" y="29" width="32" height="29"/></clipPath></defs>
+    <path id="hp" d="M16 28 C-6 12 5 -4 16 7 C27 -4 38 12 16 28Z" fill="none" stroke="#ff4f8b" stroke-width="1.2"/>
+    <path d="M16 28 C-6 12 5 -4 16 7 C27 -4 38 12 16 28Z" fill="#ff4f8b" clip-path="url(#hc)"/>
+  </svg>
+  <div id="pct">0%</div>
+  <button id="cont">Continue</button>
+</section>
+
+<!-- 2. MAIN -->
+<section id="main" class="screen">
+  <div class="holder" id="envHolder"></div>
+  <div class="row">
+    <button id="share">Share</button>
+    <button id="dont" class="ghost">Don't open</button>
+  </div>
+  <div id="toast"></div>
+</section>
+
+<!-- 3. MAXX -->
+<section id="maxx" class="screen">
+  <button id="back" class="ghost">Back</button>
+  <div id="orb"></div>
+</section>
+
+<!-- 4. STICKERS -->
+<section id="sticker" class="screen">
+  <div class="holder" id="stickHolder"></div>
+  <p id="stext"></p>
+  <div id="sbtns"></div>
+</section>
+
+<!-- 5. FINALE -->
+<section id="finale" class="screen">
+  <div id="light"></div>
+  <svg id="fheart" viewBox="0 0 32 29"><path d="M16 28 C-6 12 5 -4 16 7 C27 -4 38 12 16 28Z" fill="#ff4f8b"/></svg>
+  <p id="hint">Tap the heart</p>
+  <div id="anniv">
+    <h1>Happy 1st Anniversary, my queen 💗</h1>
+    <p id="annivText"></p>
+    <button id="nextDest">Next destination</button>
+  </div>
+</section>
+
+<!-- 6. DESTINATION / MUSIC -->
+<section id="dest" class="screen">
+  <div id="dload">
+    <p>Loading…</p>
+    <div class="bar"><i id="dfill"></i></div>
+    <div id="dpct">1%</div>
+  </div>
+  <div id="player">
+    <p id="ptitle">Pick some music first</p>
+    <label class="fbtn">Browse<input type="file" id="file" accept="audio/*"></label>
+    <div id="pickbox"><span id="pickname"></span><button id="confirm">Confirm music</button></div>
+    <div class="pbox">
+      <div id="tname"></div>
+      <input type="range" id="seek" min="0" max="1000" value="0">
+      <div id="times"><span id="tcur">0:00</span><span id="tdur">0:00</span></div>
+      <div class="ctl"><button id="prev" aria-label="Previous">⏮</button><button id="pp" aria-label="Play or pause">⏸</button><button id="next" aria-label="Next">⏭</button></div>
+    </div>
+    <p id="after"></p>
+    <button id="goGallery">Next</button>
+  </div>
+</section>
+
+<!-- 7. GALLERY (150 boxes) -->
+<section id="gallery" class="screen">
+  <div id="sphereWrap"><div id="sphere"></div></div>
+  <div id="fly"></div>
+  <div id="gbar">
+    <p id="gwait">Wait for the music to end, I have a surprise for you</p>
+    <div id="gplayer">
+      <div id="gname"></div>
+      <input type="range" id="gseek" min="0" max="1000" value="0">
+      <div id="gtimes"><span id="gcur">0:00</span><span id="gdur">0:00</span></div>
+      <div class="gctl"><button id="gprev" aria-label="Restart">⏮</button><button id="gpp" aria-label="Play or pause">⏸</button><button id="gnext" aria-label="Forward 10 seconds">⏭</button></div>
+    </div>
+  </div>
+</section>
+
+<script src="Thousands/list.js"></script>
+<script>
+/* Files are read from the folders next to this page. Replace a file in its folder (same name) to change it. */
+const ASSETS = {
+  envelope: "main int folder/envelope.png",
+  sticker1: "main int folder/sticker1.png",
+  sticker2: "main int folder/Sticker2.png",
+  sticker3: "main int folder/Sticker3.png",
+  maxx1: "Maxx/Maxx1.jpg",
+  maxx2: "Maxx/Maxx2.jpg",
+  sound1: "Sounds/Sound1.wav",
+  sound2: "Sounds/Sound2.m4a"
+};
+</script>
+<script>
+/* ============ CONFIG: change things here ============ */
+const ENVELOPE   = ASSETS.envelope;   // first holder (envelope)
+const STICKER_1  = ASSETS.sticker1;   // or paste a URL here
+const STICKER_2  = ASSETS.sticker2;   // or paste a URL here
+const STICKER_3  = ASSETS.sticker3;   // reserved, not used yet
+const MAXX_IMAGES = [ASSETS.maxx1, ASSETS.maxx2, ASSETS.maxx1, ASSETS.maxx2];
+const CONFIRM_SOUND = "sound2";       // sound that plays after she taps Confirm music
+const BURST_DELAY_MS = 30000;                    // 30 seconds
+/* ==================================================== */
+
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const rand = (a, b) => a + Math.random() * (b - a);
+function show(id){ document.querySelectorAll('.screen').forEach(s => s.classList.remove('on')); $(id).classList.add('on'); }
+
+/* image with emoji fallback if file is missing */
+function putImg(box, src, emoji){
+  box.textContent = "";
+  const im = new Image();
+  im.src = src; im.alt = "";
+  im.onerror = () => { box.textContent = emoji; };
+  box.appendChild(im);
+  return im;
+}
+
+/* ---------- 1. Intro ---------- */
+async function intro(){
+  await sleep(3000);
+  const screen = $('intro'), W = innerWidth, H = innerHeight;
+  const dirs = [...Array(11)].map((_, i) => i * (Math.PI * 2 / 11)); // 11 different directions
+  const pct = $('pct'), rect = $('hr');
+  setTimeout(() => $('msg').classList.add('on'), 1500);
+  // loader runs while stars appear
+  const total = 11 * 800 + 2500, t0 = performance.now();
+  (function tick(now){
+    const p = Math.min(1, (now - t0) / total);
+    const v = Math.max(1, Math.round(p * 100));
+    pct.textContent = v + "%";
+    rect.setAttribute('y', 29 - 29 * p);
+    if (p < 1) requestAnimationFrame(tick); else $('cont').classList.add('on');
+  })(t0);
+  for (let i = 0; i < 11; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = rand(14, 30), d = rand(40, 120);
+    s.style.cssText = `--s:${size}px;left:${rand(6, 88)}vw;top:${rand(5, 52)}vh;--dx:${Math.cos(dirs[i]) * d}px;--dy:${Math.sin(dirs[i]) * d}px;--r:${rand(-180, 180)}deg;animation-delay:0s,0s,${rand(0, 1.5)}s`;
+    screen.appendChild(s);
+    await sleep(800);
+  }
+}
+$('cont').onclick = () => { show('main'); putImg($('envHolder'), ENVELOPE, "✉️").onclick = startStickers; };
+$('envHolder').onclick = e => { if (e.target === $('envHolder')) startStickers(); };
+
+/* ---------- 2. Main ---------- */
+let toastT;
+$('share').onclick = () => {
+  const t = $('toast'); t.textContent = "I can't share you my queen, so bleh"; t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2600);
+};
+$('dont').onclick = () => { show('maxx'); startMaxx(); };
+
+/* ---------- 3. Maxx ---------- */
+let maxxTimer;
+function startMaxx(){
+  document.querySelectorAll('.bit').forEach(b => b.remove());
+  clearTimeout(maxxTimer);
+  maxxTimer = setTimeout(burst, BURST_DELAY_MS);
+}
+function burst(){
+  const labels = ["Maxx 1","Maxx 2","Maxx 1","Maxx 2"];
+  for (let i = 0; i < 48; i++){
+    const b = document.createElement('div');
+    b.className = 'bit';
+    const k = i % 4;
+    b.style.cssText = `--x:${rand(-.5, .5) * innerWidth}px;--y:${rand(-.5, .5) * innerHeight}px;--r:${rand(-25, 25)}deg;animation-delay:${rand(0, .6)}s`;
+    $('maxx').appendChild(b);
+    const im = putImg(b, MAXX_IMAGES[k], labels[k]); im.addEventListener("error", () => b.classList.add("ph"));
+  }
+}
+$('back').onclick = () => { clearTimeout(maxxTimer); document.querySelectorAll('.bit').forEach(b => b.remove()); show('main'); };
+
+/* ---------- 4. Stickers ---------- */
+function startStickers(){
+  show('sticker');
+  putImg($('stickHolder'), STICKER_1, "🥺");
+  $('stext').textContent = "You love love me? 🥺🥺";
+  const box = $('sbtns'); box.innerHTML = "";
+  const yes = Object.assign(document.createElement('button'), {textContent: "Yes"});
+  const no  = Object.assign(document.createElement('button'), {textContent: "No", id: "no", className: "ghost"});
+  box.append(yes, no);
+  const dodge = e => {
+    e.preventDefault();
+    no.style.position = "fixed";
+    no.style.left = rand(10, innerWidth - 90) + "px";
+    no.style.top  = rand(80, innerHeight - 90) + "px";
+  };
+  no.addEventListener('touchstart', dodge, {passive:false});
+  no.addEventListener('click', dodge);
+  no.addEventListener('mouseenter', dodge);
+  yes.onclick = () => {
+    putImg($('stickHolder'), STICKER_2, "😏");
+    $('stext').textContent = "I knew you lablab me nyehehehe";
+    box.innerHTML = "";
+    const go = Object.assign(document.createElement('button'), {textContent: "Let's start"});
+    go.onclick = startFinale;
+    box.appendChild(go);
+  };
+}
+
+/* ---------- 5. Finale ---------- */
+let lit = false;
+function startFinale(){
+  show('finale');
+  $('annivText').textContent = ANNIV_MESSAGE;
+}
+$('fheart').onclick = async () => {
+  if (lit) return; lit = true;
+  $('hint').style.display = "none";
+  const h = $('fheart');
+  h.classList.add('glow');
+  await sleep(1200);
+  $('light').classList.add('on');
+  await sleep(3500);
+  h.classList.add('gone');
+  await sleep(2000);
+  $('anniv').classList.add('on');
+  $('finale').style.background = "#ffd6e5";
+};
+
+/* ---------- 6. Destination: loading + music player ---------- */
+const SOUND_FOLDER = "Sounds/";
+const SOUND_EXTS = ["mp3","m4a","wav","ogg","aac","flac","opus","webm","mp4","wma","aif","aiff","amr","3gp"];
+function probe(url){
+  return new Promise(res => {
+    const a = new Audio(); let done = false;
+    const end = v => { if (!done){ done = true; a.src = ""; res(v); } };
+    a.preload = "metadata";
+    a.onloadedmetadata = () => end(true);
+    a.onerror = () => end(false);
+    setTimeout(() => end(false), 1500);
+    a.src = url;
+  });
+}
+async function findSound(name){
+  const urls = SOUND_EXTS.map(e => SOUND_FOLDER + name + "." + e);
+  const ok = await Promise.all(urls.map(probe));   // all extensions checked at once
+  const i = ok.indexOf(true);
+  return i < 0 ? null : urls[i];
+}
+const audio = new Audio();
+let pickedUrl = null, stage = 0, sound3Promise = null;   // stage: 1 = song picked, 2 = Sound2 playing, 3 = Sound3
+const fmt = t => isFinite(t) ? Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0") : "0:00";
+
+function setTrack(name, url, autoplay){
+  audio.pause();
+  $('tname').textContent = url ? name : name + " (placeholder: add the file to the sounds folder)";
+  $('seek').value = 0; $('tcur').textContent = "0:00"; $('tdur').textContent = "0:00";
+  if (url){ audio.src = url; if (autoplay) audio.play().catch(() => {}); }
+  else { audio.removeAttribute('src'); audio.load(); }
+  $('pp').textContent = (url && autoplay) ? "⏸" : "▶";
+}
+audio.ontimeupdate = () => {
+  if (audio.duration) $('seek').value = (audio.currentTime / audio.duration) * 1000;
+  $('tcur').textContent = fmt(audio.currentTime);
+};
+audio.onloadedmetadata = () => $('tdur').textContent = fmt(audio.duration);
+audio.onended = () => $('pp').textContent = "▶";
+$('seek').oninput = e => { if (audio.duration) audio.currentTime = (e.target.value / 1000) * audio.duration; };
+$('pp').onclick = () => {
+  if (!audio.src) return;
+  if (audio.paused){ audio.play().catch(() => {}); $('pp').textContent = "⏸"; }
+  else { audio.pause(); $('pp').textContent = "▶"; }
+};
+$('prev').onclick = () => { if (audio.src) audio.currentTime = 0; };
+$('next').onclick = () => { if (audio.duration) audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); };
+
+$('file').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  audio.pause(); audio.removeAttribute('src'); audio.load();   // her pick never plays
+  stage = 1;
+  $('tname').textContent = f.name;
+  $('seek').value = 0; $('tcur').textContent = "0:00"; $('tdur').textContent = "0:00";
+  $('pp').textContent = "▶";
+  $('pickname').textContent = f.name;
+  $('pickbox').classList.add('on');
+  $('after').textContent = "";
+  $('goGallery').classList.remove('on');
+  e.target.value = "";
+};
+$('confirm').onclick = async () => {
+  $('pickbox').classList.remove('on');
+  audio.pause();
+  $('tname').textContent = "Loading…";
+  const url = ASSETS[CONFIRM_SOUND] || null;
+  setTrack(CONFIRM_SOUND, url, true);
+  stage = 2; sound3Promise = findSound("Sound3");   // look for Sound3 (any audio type) while Sound2 plays
+  $('after').textContent = "Nevermind, this music is more beautiful hehehe";
+  $('goGallery').classList.add('on');
+};
+
+let destStarted = false;
+$('nextDest').onclick = async () => {
+  show('dest');
+  if (destStarted) return; destStarted = true;
+  const voice = new Audio(ASSETS.sound1);          // "welcome to your next destination" (about 4 seconds)
+  voice.play().catch(() => {});
+  const t0 = performance.now(), total = 6000;      // loading lasts 6 seconds
+  await new Promise(done => (function tick(now){
+    const k = Math.min(1, (now - t0) / total);
+    $('dpct').textContent = Math.max(1, Math.round(k * 100)) + "%";
+    $('dfill').style.width = (k * 100) + "%";
+    k < 1 ? requestAnimationFrame(tick) : done();
+  })(t0));
+  $('dload').style.display = "none";
+  $('player').classList.add('on');
+  $('tname').textContent = "No music yet. Tap Browse to pick one.";
+  $('pp').textContent = "▶";
+};
+
+/* ---------- 7. Gallery: 150 boxes (music keeps playing) ---------- */
+const GALLERY_IMAGES = (window.THOUSANDS || []).map(n => "Thousands/" + encodeURIComponent(n));   // filled from Thousands/list.js (made by make-list.html)
+const COMPLIMENTS = [
+ "You are beautiful.",
+ "Your smile is my favorite thing.",
+ "You make everything lighter.",
+ "I love how kind you are.",
+ "You are my favorite person.",
+ "Your laugh is the best sound.",
+ "You are stronger than you know.",
+ "You make me a better person.",
+ "Being with you feels like home.",
+ "You are the best part of my day.",
+ "You are amazing, my queen.",
+ "Nobody does it like you.",
+ "I am so lucky to be yours.",
+ "You shine without even trying.",
+ "You are prettier than all the stars.",
+ "You are the calm in my chaos.",
+ "Your eyes are my favorite view.",
+ "You are more precious than you think.",
+ "You make ordinary days special.",
+ "Everything is better with you.",
+ "You have the sweetest heart.",
+ "You are one of a kind.",
+ "I adore the way you think.",
+ "You are my happy place.",
+ "You make my heart feel full.",
+ "You are a gift to everyone around you.",
+ "Your kindness is rare and beautiful.",
+ "You are glowing today.",
+ "You are my favorite hello.",
+ "You are my favorite goodbye to wait for.",
+ "I love your little quirks.",
+ "You are impossible not to love.",
+ "You look good in everything.",
+ "You look even better when you laugh.",
+ "You are so easy to love.",
+ "You are smarter than you give yourself credit for.",
+ "Your voice is my favorite sound.",
+ "You bring out the best in me.",
+ "You are the reason I smile at my phone.",
+ "You make time fly.",
+ "I love the way you care.",
+ "You are thoughtful in the smallest ways.",
+ "You are the most genuine person I know.",
+ "Your heart is pure gold.",
+ "You deserve all the good things.",
+ "You are enough, always.",
+ "You are braver than you feel.",
+ "You are doing great, my queen.",
+ "I am proud of you.",
+ "You inspire me every day.",
+ "You make hard days softer.",
+ "You are my peace.",
+ "You are my favorite notification.",
+ "You are the plot twist I needed.",
+ "You are the best thing that happened to me.",
+ "Your hugs fix everything.",
+ "You are warm like sunshine.",
+ "You are cute even when you are grumpy.",
+ "You are lovely inside and out.",
+ "I love your energy.",
+ "You light up every room.",
+ "You are effortlessly pretty.",
+ "You are a whole vibe.",
+ "Your presence is a comfort.",
+ "You have a beautiful soul.",
+ "You are so talented.",
+ "You make me want to try harder.",
+ "You make me laugh like nobody else.",
+ "I love how you love.",
+ "You are my best friend and more.",
+ "You are my safe place.",
+ "You are my favorite adventure.",
+ "You make the world softer.",
+ "You have such a gentle way.",
+ "You are the sweetest.",
+ "You are lovable just as you are.",
+ "You are unforgettable.",
+ "You are my kind of beautiful.",
+ "I love your goofy side.",
+ "You are adorable.",
+ "You are my queen, today and always.",
+ "You are the main character.",
+ "You have great taste, you picked me.",
+ "You are a masterpiece.",
+ "You are radiant.",
+ "You make my days brighter.",
+ "You make me feel understood.",
+ "You make me feel chosen.",
+ "You are my favorite chapter.",
+ "You are precious to me.",
+ "You are magic.",
+ "You are a rare kind of wonderful.",
+ "You are the prettiest thought in my head.",
+ "Your smile could fix my whole week.",
+ "You glow from the inside.",
+ "You have the loveliest laugh.",
+ "You are delightful.",
+ "You make love look easy.",
+ "You are dependable and sweet.",
+ "You are gentle with my heart.",
+ "You are patient with me.",
+ "You listen so well.",
+ "You make me feel heard.",
+ "You are loyal and true.",
+ "You are graceful in everything.",
+ "You handle things so well.",
+ "You are resilient.",
+ "You are growing beautifully.",
+ "You deserve rest and softness.",
+ "You deserve to be celebrated.",
+ "You deserve love every single day.",
+ "You are worth every moment.",
+ "You are worth the wait.",
+ "You were worth finding.",
+ "You make my heart skip.",
+ "You make me blush from far away.",
+ "You are a dream I get to keep.",
+ "You are my favorite person to talk to.",
+ "You make silence comfortable.",
+ "You make small things feel big.",
+ "You make memories out of nothing.",
+ "You are fun to be around.",
+ "You have a heart of silk.",
+ "You are wonderfully you.",
+ "Never change your sweetness.",
+ "Never doubt how lovely you are.",
+ "You are loved more than you know.",
+ "You are cherished.",
+ "You are appreciated.",
+ "You are admired.",
+ "You are treasured.",
+ "You are my whole world.",
+ "You are my sunrise.",
+ "You are my sunset.",
+ "You are my moon on a dark night.",
+ "You are the softest part of my life.",
+ "You are my favorite kind of trouble.",
+ "You are all I ever wanted.",
+ "You are a wonderful surprise.",
+ "You are the best decision I made.",
+ "You are the best yes.",
+ "You made my life prettier.",
+ "You made my life warmer.",
+ "You made my life louder, in a good way.",
+ "You make everything feel possible.",
+ "You make me believe in good things.",
+ "You make me hopeful.",
+ "You make me feel safe.",
+ "You make me feel proud to be yours.",
+ "You make me feel lucky.",
+ "You make me feel loved.",
+ "You are the sweetest part of my story.",
+ "You are a beautiful person.",
+ "You are a beautiful mind.",
+ "You are a beautiful heart.",
+ "You are a beautiful soul.",
+ "You are simply lovely.",
+ "You are strikingly beautiful.",
+ "You are naturally gorgeous.",
+ "You are stunning.",
+ "You are pretty without any effort.",
+ "You are pretty when you wake up.",
+ "You are pretty when you are sleepy.",
+ "You are pretty when you are focused.",
+ "You are pretty when you are laughing.",
+ "You are pretty when you are quiet.",
+ "You are the cutest person I know.",
+ "You are the kindest person I know.",
+ "You are the funniest person I know.",
+ "You are the strongest person I know.",
+ "You are the sweetest person I know.",
+ "You are the most caring person I know.",
+ "You are the most loving person I know.",
+ "You are the most beautiful person I know.",
+ "You make people feel welcome.",
+ "You make people feel seen.",
+ "You make people feel valued.",
+ "You make people feel at ease.",
+ "Everyone is lucky to know you.",
+ "I am the luckiest to love you.",
+ "Thank you for being you.",
+ "Thank you for staying.",
+ "Thank you for your patience.",
+ "Thank you for your love.",
+ "Thank you for every smile.",
+ "Thank you for every laugh.",
+ "Thank you for being my home.",
+ "Thank you for choosing me.",
+ "Thank you for the best year.",
+ "One year with you was not enough.",
+ "I would choose you again and again.",
+ "I would choose you in every lifetime.",
+ "I would wait for you forever.",
+ "I would pick you every single time.",
+ "You are my forever favorite.",
+ "You are my always.",
+ "You are my once in a lifetime.",
+ "You are my little miracle.",
+ "You are my sweetest habit.",
+ "You are my best luck.",
+ "You are my brightest star.",
+ "You are my north star.",
+ "You are my favorite song.",
+ "You are my favorite memory.",
+ "You are my favorite thought.",
+ "You are my favorite dream.",
+ "You are my favorite smile.",
+ "You are my favorite human.",
+ "You are my favorite everything.",
+ "You are the one I want to share everything with.",
+ "You are the one I think of first.",
+ "You are the one I call in my head.",
+ "You are the one who understands me.",
+ "You are the one who makes me smile.",
+ "You are the one I want beside me.",
+ "You are the one who feels like home.",
+ "You are the reason I believe in love.",
+ "You are the reason today is good.",
+ "You are the reason I am happy.",
+ "You are the reason I keep smiling.",
+ "Your smile is contagious.",
+ "Your eyes sparkle.",
+ "Your laugh is a melody.",
+ "Your voice is soothing.",
+ "Your hands are so gentle.",
+ "Your hugs feel like safety.",
+ "Your heart is huge.",
+ "Your mind is brilliant.",
+ "Your soul is lovely.",
+ "Your style is cute.",
+ "Your energy is warm.",
+ "Your kindness is powerful.",
+ "Your patience amazes me.",
+ "Your strength amazes me.",
+ "Your sweetness amazes me.",
+ "Your presence is a gift.",
+ "Your love is a blessing.",
+ "Your care is felt.",
+ "Your words are warm.",
+ "Your jokes are the best.",
+ "Your little smiles melt me.",
+ "Your dimples are adorable.",
+ "Your face is my favorite scenery.",
+ "Your beauty is not just skin deep.",
+ "Your light is needed in this world.",
+ "Your dreams are worth chasing.",
+ "Your ideas are wonderful.",
+ "Your voice matters.",
+ "Your feelings matter.",
+ "Your happiness matters most to me.",
+ "Your peace matters to me.",
+ "Your future looks bright.",
+ "Your past made you wonderful.",
+ "Your growth makes me proud.",
+ "Your effort never goes unnoticed.",
+ "Your goodness shows.",
+ "Your heart is easy to love.",
+ "Your touch is comforting.",
+ "Your company is my favorite.",
+ "Your messages make my day.",
+ "Your name makes me smile.",
+ "Your love makes me stronger.",
+ "I love your heart.",
+ "I love your mind.",
+ "I love your humor.",
+ "I love your smile.",
+ "I love your eyes.",
+ "I love your voice.",
+ "I love your laugh.",
+ "I love your sweetness.",
+ "I love your strength.",
+ "I love your kindness.",
+ "I love your softness.",
+ "I love your passion.",
+ "I love your honesty.",
+ "I love your loyalty.",
+ "I love your patience.",
+ "I love your warmth.",
+ "I love your creativity.",
+ "I love your curiosity.",
+ "I love how you care for people.",
+ "I love how you make me feel.",
+ "I love how you handle life.",
+ "I love how real you are.",
+ "I love being yours.",
+ "I love being your person.",
+ "I love every version of you.",
+ "I love you more each day.",
+ "I love you more than words can say.",
+ "I love you to the moon and back.",
+ "I adore you, my queen.",
+ "I admire you so much.",
+ "I appreciate you more than you know.",
+ "I am grateful for you every day.",
+ "I am so proud to be with you.",
+ "I am so happy with you.",
+ "I am so lucky to love you.",
+ "I am yours, completely.",
+ "I am thankful for one beautiful year.",
+ "Happy anniversary, my queen.",
+ "Here is to one year of us.",
+ "Here is to many more years with you.",
+ "You are the best thing in my life, forever."
+];
+let deck = [];                    // shuffled so no compliment repeats until all are used
+let gTimers = [];
+function randomImg(){ return GALLERY_IMAGES.length ? GALLERY_IMAGES[Math.floor(Math.random() * GALLERY_IMAGES.length)] : null; }
+function paint(el, src){ if (src) el.style.backgroundImage = 'url("' + String(src).replace(/"/g, '%22') + '")'; }
+function say(){
+  if (!deck.length){                                   // refill and reshuffle only when every one was shown
+    deck = COMPLIMENTS.slice();
+    for (let i = deck.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+  }
+  const el = document.createElement('div');
+  el.className = 'cf'; el.textContent = deck.pop();
+  el.style.setProperty('--rise', -(innerHeight - 330) + 'px');
+  $('gallery').appendChild(el);
+  setTimeout(() => el.remove(), 7200);
+}
+function buildGallery(){
+  gTimers.forEach(clearInterval); gTimers = [];
+  const sp = $('sphere'); sp.innerHTML = "";
+  const R = Math.min($('sphereWrap').clientWidth * 0.42, innerHeight * 0.28), size = Math.round(R * 0.27), N = 150;
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < N; i++){
+    const y = 1 - 2 * (i + 0.5) / N, r = Math.sqrt(1 - y * y), ph = i * golden;
+    const x = Math.cos(ph) * r, z = Math.sin(ph) * r;
+    const a = Math.atan2(x, z) * 180 / Math.PI, b = -Math.asin(y) * 180 / Math.PI;
+    const d = document.createElement('div'); d.className = 'gb';
+    d.style.cssText = 'width:' + size + 'px;height:' + size + 'px;margin:' + (-size / 2) + 'px 0 0 ' + (-size / 2) + 'px;transform:rotateY(' + a + 'deg) rotateX(' + b + 'deg) translateZ(' + R + 'px)';
+    d.onclick = say; paint(d, randomImg()); sp.appendChild(d);
+  }
+  if (GALLERY_IMAGES.length) gTimers.push(setInterval(() => {          // keep swapping faces so thousands get seen
+    const k = sp.children[Math.floor(Math.random() * sp.children.length)]; paint(k, randomImg());
+  }, 350));
+  const fly = $('fly');
+  const spawn = () => {
+    const w = fly.clientWidth, sz = 56 + Math.random() * 30, f = document.createElement('div');
+    f.className = 'fb';
+    f.style.cssText = 'width:' + sz + 'px;height:' + sz + 'px;left:' + (Math.random() * 12) + '%;top:' + (12 + Math.random() * 70) + '%;--dx:' + (30 + Math.random() * Math.max(10, w - sz - 40)) + 'px;--dy:' + ((Math.random() - 0.5) * 80) + 'px';
+    f.onclick = say; paint(f, randomImg()); fly.appendChild(f);
+    setTimeout(() => f.remove(), 5200);
+  };
+  spawn(); gTimers.push(setInterval(spawn, 1100));
+}
+$('goGallery').onclick = () => { show('gallery'); buildGallery(); refreshBar(); };   // audio keeps playing: it is not tied to a screen
+
+/* ---------- 8. Gallery bottom player: appears when Sound2 ends, plays Sound3 ---------- */
+function refreshBar(){
+  $('gwait').style.display = stage === 3 ? "none" : "block";
+  $('gplayer').style.display = stage === 3 ? "flex" : "none";
+}
+audio.addEventListener('ended', async () => {
+  if (stage !== 2) return;
+  stage = 3;
+  const url = await sound3Promise;
+  $('gname').textContent = url ? "Sound3" : "Sound3 (add the file to the Sounds folder)";
+  if (url){ audio.src = url; audio.play().catch(() => {}); }
+  refreshBar();
+});
+audio.addEventListener('timeupdate', () => {
+  if (stage !== 3 || !audio.duration) return;
+  $('gseek').value = (audio.currentTime / audio.duration) * 1000;
+  $('gcur').textContent = fmt(audio.currentTime);
+});
+audio.addEventListener('loadedmetadata', () => { if (stage === 3) $('gdur').textContent = fmt(audio.duration); });
+audio.addEventListener('play',  () => { if (stage === 3) $('gpp').textContent = "⏸"; });
+audio.addEventListener('pause', () => { if (stage === 3) $('gpp').textContent = "▶"; });
+$('gseek').oninput = e => { if (audio.duration) audio.currentTime = (e.target.value / 1000) * audio.duration; };
+$('gpp').onclick = () => { if (!audio.src) return; audio.paused ? audio.play().catch(() => {}) : audio.pause(); };
+$('gprev').onclick = () => { if (audio.src) audio.currentTime = 0; };
+$('gnext').onclick = () => { if (audio.duration) audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); };
+
+intro();
+</script>
+</body>
+</html>
